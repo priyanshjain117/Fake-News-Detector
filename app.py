@@ -67,7 +67,21 @@ def home():
 def predict():
     try:
         # Get input text from form
-        text = request.form.get('news_text', '').strip()
+        # text = request.form.get('news_text', '').strip()
+        text = ''
+        
+        # --- THIS IS THE NEW LOGIC ---
+        # Check if the data is JSON (from your mobile app)
+        if request.is_json:
+            data = request.get_json()
+            if not data or 'news_text' not in data:
+                 return jsonify({'error': 'No text provided in JSON'}), 400
+            text = data.get('news_text', '').strip()
+        
+        # If not JSON, assume it's from your web form
+        else:
+            text = request.form.get('news_text', '').strip()
+        # --- END OF NEW LOGIC ---
         
         if not text:
             return jsonify({'error': 'No text provided'}), 400
