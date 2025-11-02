@@ -1,3 +1,92 @@
+# import streamlit as st
+# import joblib
+# import os
+# import re
+# import string
+# import pandas as pd
+
+# # =========================================================
+# # ✅ 1. Load Model and Vectorizer Safely (Absolute Path)
+# # =========================================================
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
+# VECTORIZER_PATH = os.path.join(BASE_DIR, "vectorizer_ver2.pkl")
+
+# # Load files
+# model = joblib.load(MODEL_PATH)
+# vectorizer = joblib.load(VECTORIZER_PATH)
+
+# # Debug info (optional)
+# try:
+#     st.sidebar.write("🧠 Model expects:", model.n_features_in_)
+#     st.sidebar.write("📊 Vectorizer outputs:", len(vectorizer.get_feature_names_out()))
+# except Exception as e:
+#     st.sidebar.warning(f"Debug info unavailable: {e}")
+
+# # =========================================================
+# # ✅ 2. Text Cleaning Function
+# # =========================================================
+# def clean_text(text):
+#     text = text.lower()
+#     text = re.sub(r'\[.*?\]', '', text)
+#     text = re.sub(r'https?://\S+|www\.\S+', '', text)
+#     text = re.sub('<.*?>+', '', text)
+#     text = re.sub(r'[%s]' % re.escape(string.punctuation), '', text)
+#     text = re.sub(r'\n', '', text)
+#     text = re.sub(r'\w*\d\w*', '', text)
+#     return text.strip()
+
+# # =========================================================
+# # ✅ 3. Prediction Function
+# # =========================================================
+# def predict_news(text):
+#     cleaned = clean_text(text)
+
+#     # Transform using existing vectorizer
+#     vect_text = vectorizer.transform([cleaned])
+
+#     # Safety check for matching feature size
+#     if vect_text.shape[1] != model.n_features_in_:
+#         raise ValueError(
+#             f"Feature mismatch: model expects {model.n_features_in_}, "
+#             f"but vectorizer produced {vect_text.shape[1]} features.\n"
+#             f"→ Ensure both model.pkl and vectorizer.pkl come from the same training run."
+#         )
+
+#     prediction = model.predict(vect_text)[0]
+#     return prediction
+
+# # =========================================================
+# # ✅ 4. Streamlit App UI
+# # =========================================================
+# st.set_page_config(page_title="📰 Fake News Detector", page_icon="🧠", layout="centered")
+
+# st.title("📰 Fake News Detector using Machine Learning")
+# st.write("Enter any news headline or paragraph to check if it's **Fake** or **Real**.")
+
+# # Input text box
+# user_input = st.text_area("🗞️ Enter News Text Here", height=200)
+
+# # Predict button
+# if st.button("🔍 Predict"):
+#     if user_input.strip() == "":
+#         st.warning("⚠️ Please enter some text first.")
+#     else:
+#         try:
+#             prediction = predict_news(user_input)
+#             if prediction == 1:
+#                 st.success("✅ The news is **Real**.")
+#             else:
+#                 st.error("❌ The news is **Fake**.")
+#         except ValueError as e:
+#             st.error(f"⚠️ Error: {e}")
+#         except Exception as e:
+#             st.error(f"Unexpected error: {e}")
+
+# st.markdown("---")
+# st.caption("Developed with ❤️ using Streamlit and Scikit-learn")
+
+
 import streamlit as st
 import pickle
 import re
@@ -75,17 +164,17 @@ def load_models():
     try:
         # Try different possible locations
         model_path = 'model.pkl'
-        vectorizer_path = 'vectorizer.pkl'
+        vectorizer_path = 'vectorizer_ver2.pkl'
         
         if not os.path.exists(model_path):
             st.error("❌ model.pkl not found!")
             return None, None
         
         if not os.path.exists(vectorizer_path):
-            if os.path.exists('vectoriser.pkl'):
-                vectorizer_path = 'vectoriser.pkl'
+            if os.path.exists('vectorizer_ver2.pkl'):
+                vectorizer_path = 'vectorizer_ver2.pkl'
             else:
-                st.error("❌ vectorizer.pkl not found!")
+                st.error("❌ vectorizer_ver2.pkl not found!")
                 return None, None
         
         with open(model_path, 'rb') as f:
