@@ -1,4 +1,4 @@
-```markdown
+```
 # 📰 Fake News Detector App
 
 An intelligent **Fake News Detection System** that leverages **Machine Learning** (Logistic Regression + TF-IDF) to classify news headlines or articles as **Real**, **Fake**, or **Questionable**. Built with **Flutter** for the frontend and **TensorFlow Lite** for secure, offline on-device inference.
