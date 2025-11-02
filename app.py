@@ -7,7 +7,7 @@ import re
 # -------------------------------------------------
 try:
     model = pickle.load(open('model.pkl', 'rb'))
-    vectorizer = pickle.load(open('vectorizer.pkl', 'rb'))
+    vectorizer = pickle.load(open('vectorizer_ver2.pkl', 'rb'))
 except:
     print("Error loading model files")
     model = None
