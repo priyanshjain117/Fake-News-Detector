@@ -1,4 +1,39 @@
-# 📰 Fake News Detector App An intelligent **Fake News Detection System** that uses **Machine Learning** (Logistic Regression + TF-IDF) to classify news headlines or articles as **Real**, **Fake**, or **Questionable**. Built with **Flutter** for the front-end and **TensorFlow Lite (TFLite)** for on-device inference — ensuring privacy, speed, and offline capability. --- ## 🚀 Features - 🔍 **Real-time Fake News Detection** — Enter a news headline or paragraph and get instant classification. - 🤖 **On-device Machine Learning** — Uses a pre-trained Logistic Regression model converted to TFLite format. - 🧠 **TF-IDF Vectorization** — Converts text input into numerical vectors for model prediction. - 📱 **Flutter UI** — Clean, responsive, and mobile-friendly design. - ⚡ **Offline Prediction** — No internet needed after model deployment. - 🧾 **Three Output Categories** - ✅ Real - ❌ Fake - ❓ Questionable (Uncertain cases) --- ## 🧩 Tech Stack | Layer | Technology Used | Description | |-------|------------------|-------------| | **ML Model** | Logistic Regression | Trained to classify fake vs real news | | **Text Processing** | TF-IDF Vectorizer | Converts text into feature vectors | | **Framework** | TensorFlow Lite | For running ML model on-device | | **Frontend** | Flutter | Cross-platform mobile UI | | **Language** | Dart, Python | Dart (App), Python (Model Training) | --- ## ⚙️ Architecture
+```markdown
+# 📰 Fake News Detector App
+
+An intelligent **Fake News Detection System** that leverages **Machine Learning** (Logistic Regression + TF-IDF) to classify news headlines or articles as **Real**, **Fake**, or **Questionable**. Built with **Flutter** for the frontend and **TensorFlow Lite** for secure, offline on-device inference.
+
+---
+
+## 🚀 Features
+
+- 🔍 **Real-time Fake News Detection** — Enter any headline or article and get instant results.
+- 🤖 **On-device ML** — Runs a pre-trained Logistic Regression model with TFLite, ensuring privacy and quick inference.
+- 🧠 **TF-IDF Vectorization** — Transforms text input into numerical vectors for precise classification.
+- 📱 **Flutter UI** — Clean, responsive, modern mobile design.
+- ⚡ **Offline Prediction** — Works without internet after the first setup.
+- 🧾 **Three Output Categories**:
+  - ✅ Real
+  - ❌ Fake
+  - ❓ Questionable (for uncertainty)
+
+---
+
+## 🧩 Tech Stack
+
+| Layer         | Technology Used     | Description                                  |
+| ------------- | ------------------ | --------------------------------------------- |
+| **ML Model**  | Logistic Regression| Classifies news as fake/real                  |
+| **Text Processing** | TF-IDF Vectorizer | Converts input to feature vectors          |
+| **Framework** | TensorFlow Lite    | On-device ML inference                        |
+| **Frontend**  | Flutter            | Cross-platform mobile UI framework            |
+| **Language**  | Dart, Python       | Dart (UI), Python (Model training)            |
+
+---
+
+## ⚙️ Architecture
+
+```
 ┌─────────────────────────────┐
 │         Flutter App         │
 │   ┌─────────────────────┐   │
@@ -8,119 +43,106 @@
 │              ▼               │
 │   ┌─────────────────────┐   │
 │   │ TF-IDF + TFLite     │ ← Pre-trained ML model
-│   │ Logistic Regression  │
+│   │ Logistic Regression │
 │   └─────────────────────┘   │
 │              │               │
 │              ▼               │
 │     Prediction Result        │
 │  (Real / Fake / Questionable)│
 └─────────────────────────────┘
---- ## 🧠 Model Training (Python) 1. **Dataset**: News dataset with labeled real and fake samples. 2. **Steps**:
-python
+```
+
+---
+
+## 🧠 Model Training (Python)
+
+1. **Dataset:** News samples labeled as real or fake.  
+2. **Steps:**
+   ```
    from sklearn.feature_extraction.text import TfidfVectorizer
    from sklearn.linear_model import LogisticRegression
    import joblib
 
-   # Load and preprocess dataset
    vectorizer = TfidfVectorizer(max_features=5000)
    X = vectorizer.fit_transform(news_data['text'])
    y = news_data['label']
 
-   # Train model
    model = LogisticRegression()
    model.fit(X, y)
 
-   # Save model and vocab
    joblib.dump(model, 'model.pkl')
    joblib.dump(vectorizer.vocabulary_, 'vocab.pkl')
-````
-
+   ```
 3. **Convert to TensorFlow Lite:**
-
-   * Export the model to ONNX or use a conversion pipeline to get `.tflite`
-   * Place `model.tflite` and `vocab.json` in your Flutter app’s `/assets/` folder.
+   - Export via ONNX or direct pipeline to `.tflite`  
+   - Place `model.tflite` and `vocab.json` in your Flutter app’s `/assets/` folder
 
 ---
 
 ## 📲 Flutter App Integration
 
-1. **Add TFLite Flutter plugin:**
-
-   ```yaml
+1. **Add TFLite plugin:**
+   ```
    dependencies:
      tflite_flutter: ^0.10.4
    ```
-
 2. **Load model and vocab:**
-
-   ```dart
+   ```
    final interpreter = await Interpreter.fromAsset('model.tflite');
    final vocab = await loadVocab('assets/vocab.json');
    ```
-
-3. **Preprocess text** using the same TF-IDF tokenization logic.
-
-4. **Run inference** using the TFLite interpreter.
-
-5. **Display results** with a color-coded and responsive UI.
+3. **Preprocess text** with TF-IDF logic.  
+4. **Run inference** via the TFLite interpreter.  
+5. **Display results** in a color-coded, responsive UI.
 
 ---
 
 ## 🖼️ Screenshots
 
-| Home Screen                          | Result - Real                        | Result - Fake                        |
-| ------------------------------------ | ------------------------------------ | ------------------------------------ |
-| ![Home](assets/screenshots/home.png) | ![Real](assets/screenshots/real.png) | ![Fake](assets/screenshots/fake.png) |
+| Home Screen                        | Result - Real                      | Result - Fake                      |
+| ----------------------------------  | ---------------------------------- | ---------------------------------- |
+| ![Home](assets/screenshots/home.png)| ![Real](assets/screenshots/real.png)| ![Fake](assets/screenshots/fake.png)|
 
 ---
 
 ## 🧪 Example Input & Output
 
-| Input                                          | Predicted Label |
-| ---------------------------------------------- | --------------- |
-| "NASA confirms water on the moon!"             | ✅ Real          |
-| "Celebrity endorses miracle cure for COVID-19" | ❌ Fake          |
-| "Experts debate impact of new economic policy" | ❓ Questionable  |
+| Input                                           | Predicted Label   |
+| ------------------------------------------------| ----------------- |
+| "NASA confirms water on the moon!"              | ✅ Real           |
+| "Celebrity endorses miracle cure for COVID-19"  | ❌ Fake           |
+| "Experts debate impact of new economic policy"  | ❓ Questionable   |
 
 ---
 
 ## 🛠️ Setup Instructions
 
 ### 1️⃣ Clone the Repository
-
-```bash
+```
 git clone https://github.com/yourusername/fake_news_detector.git
 cd fake_news_detector
 ```
-
 ### 2️⃣ Install Dependencies
-
-```bash
+```
 flutter pub get
 ```
-
 ### 3️⃣ Add Assets
 
-Place your trained `model.tflite` and `vocab.json` inside:
-
+Place trained model and vocab inside:
 ```
 assets/
  ├── model.tflite
  └── vocab.json
 ```
-
 ### 4️⃣ Update pubspec.yaml
-
-```yaml
+```
 flutter:
   assets:
     - assets/model.tflite
     - assets/vocab.json
 ```
-
-### 5️⃣ Run App
-
-```bash
+### 5️⃣ Run the App
+```
 flutter run
 ```
 
@@ -128,26 +150,27 @@ flutter run
 
 ## 📚 Future Enhancements
 
-* 🌐 Web & Desktop Support (using TensorFlow.js or TFLite web)
-* 🗣️ Voice Input for detecting fake news from speech
-* 📊 Confidence Score Visualization
-* 🔎 Integration with live news APIs
+- 🌐 Web & Desktop support (TensorFlow.js / TFLite web)  
+- 🗣️ Voice input for audio-based detection  
+- 📊 Visualization of prediction confidence score  
+- 🔎 Live news API integration  
 
 ---
 
 ## 👨‍💻 Author
 
-**Priyanshu** — Machine Learning & Flutter Developer
-📧 Contact: [your.email@example.com](mailto:your.email@example.com)
-💻 GitHub: [github.com/yourusername](https://github.com/yourusername)
+**Priyanshu** — Machine Learning & Flutter Developer  
+📧 [your.email@example.com](mailto:your.email@example.com)  
+💻 [github.com/yourusername](https://github.com/yourusername)  
 
 ---
 
 ## 🏁 License
 
-This project is licensed under the **MIT License** — feel free to use, modify, and distribute it.
+Licensed under the **MIT License** — free to use, modify, and distribute.
 
 ---
 
 > ⚡ *"Fight misinformation with machine intelligence."*
+```
 
