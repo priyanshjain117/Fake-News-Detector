@@ -1,3 +1,8 @@
+Here’s your **corrected and cleanly formatted README.md**, with fixed Markdown syntax, corrected code blocks, and an improved ASCII architecture diagram that displays properly on GitHub or VS Code preview.
+
+---
+
+```markdown
 # 📰 Fake News Detector App
 
 An intelligent **Fake News Detection System** that uses **Machine Learning** (Logistic Regression + TF-IDF) to classify news headlines or articles as **Real**, **Fake**, or **Questionable**.  
@@ -7,14 +12,14 @@ Built with **Flutter** for the front-end and **TensorFlow Lite (TFLite)** for on
 
 ## 🚀 Features
 
-- 🔍 **Real-time Fake News Detection** — Enter a news headline or paragraph and get instant classification.
-- 🤖 **On-device Machine Learning** — Uses a pre-trained Logistic Regression model converted to TFLite format.
-- 🧠 **TF-IDF Vectorization** — Converts text input into numerical vectors for model prediction.
-- 📱 **Flutter UI** — Clean, responsive, and mobile-friendly design.
-- ⚡ **Offline Prediction** — No internet needed after model deployment.
-- 🧾 **Three Output Categories**
-  - ✅ Real
-  - ❌ Fake
+- 🔍 **Real-time Fake News Detection** — Enter a news headline or paragraph and get instant classification.  
+- 🤖 **On-device Machine Learning** — Uses a pre-trained Logistic Regression model converted to TFLite format.  
+- 🧠 **TF-IDF Vectorization** — Converts text input into numerical vectors for model prediction.  
+- 📱 **Flutter UI** — Clean, responsive, and mobile-friendly design.  
+- ⚡ **Offline Prediction** — No internet needed after model deployment.  
+- 🧾 **Three Output Categories:**
+  - ✅ Real  
+  - ❌ Fake  
   - ❓ Questionable (Uncertain cases)
 
 ---
@@ -35,22 +40,22 @@ Built with **Flutter** for the front-end and **TensorFlow Lite (TFLite)** for on
 
 ```
 
-┌─────────────────────────────┐
-│         Flutter App         │
-│   ┌─────────────────────┐   │
-│   │ User enters text    │   │
-│   └─────────────────────┘   │
-│              │               │
-│              ▼               │
-│   ┌─────────────────────┐   │
-│   │ TF-IDF + TFLite     │ ← Pre-trained ML model
-│   │ Logistic Regression  │
-│   └─────────────────────┘   │
-│              │               │
-│              ▼               │
-│     Prediction Result        │
-│  (Real / Fake / Questionable)│
-└─────────────────────────────┘
+┌───────────────────────────────────────────┐
+│                 Flutter App               │
+│  ┌─────────────────────────────────────┐  │
+│  │           User enters text          │  │
+│  └─────────────────────────────────────┘  │
+│                     │                      │
+│                     ▼                      │
+│  ┌─────────────────────────────────────┐  │
+│  │      TF-IDF + TFLite Model          │  │
+│  │     (Logistic Regression Model)     │  │
+│  └─────────────────────────────────────┘  │
+│                     │                      │
+│                     ▼                      │
+│        Prediction Result Displayed         │
+│       (Real / Fake / Questionable)         │
+└───────────────────────────────────────────┘
 
 ````
 
@@ -58,8 +63,9 @@ Built with **Flutter** for the front-end and **TensorFlow Lite (TFLite)** for on
 
 ## 🧠 Model Training (Python)
 
-1. **Dataset**: News dataset with labeled `real` and `fake` samples.
-2. **Steps**:
+1. **Dataset**: News dataset with labeled `real` and `fake` samples.  
+2. **Steps:**
+
    ```python
    from sklearn.feature_extraction.text import TfidfVectorizer
    from sklearn.linear_model import LogisticRegression
@@ -74,12 +80,12 @@ Built with **Flutter** for the front-end and **TensorFlow Lite (TFLite)** for on
    model = LogisticRegression()
    model.fit(X, y)
 
-   # Save model and vocab
+   # Save model and vocabulary
    joblib.dump(model, 'model.pkl')
    joblib.dump(vectorizer.vocabulary_, 'vocab.pkl')
 ````
 
-3. **Convert to TensorFlow Lite**:
+3. **Convert to TensorFlow Lite:**
 
    * Export the model to ONNX or use a conversion pipeline to get `.tflite`
    * Place `model.tflite` and `vocab.json` in your Flutter app’s `/assets/` folder.
@@ -88,25 +94,25 @@ Built with **Flutter** for the front-end and **TensorFlow Lite (TFLite)** for on
 
 ## 📲 Flutter App Integration
 
-1. Add TFLite Flutter plugin:
+1. **Add TFLite Flutter plugin:**
 
    ```yaml
    dependencies:
      tflite_flutter: ^0.10.4
    ```
 
-2. Load model and vocab:
+2. **Load model and vocab:**
 
    ```dart
    final interpreter = await Interpreter.fromAsset('model.tflite');
    final vocab = await loadVocab('assets/vocab.json');
    ```
 
-3. Preprocess text using TF-IDF logic (same tokenization).
+3. **Preprocess text** using the same TF-IDF tokenization logic.
 
-4. Run inference using the interpreter.
+4. **Run inference** using the TFLite interpreter.
 
-5. Display result with color-coded UI.
+5. **Display results** with a color-coded and responsive UI.
 
 ---
 
@@ -179,10 +185,10 @@ flutter run
 
 ---
 
-## 👨‍💻 Authors
+## 👨‍💻 Author
 
 **Priyanshu** — Machine Learning & Flutter Developer
-📧 Contact: [[your.email@example.com](mailto:your.email@example.com)]
+📧 Contact: [your.email@example.com](mailto:your.email@example.com)
 💻 GitHub: [github.com/yourusername](https://github.com/yourusername)
 
 ---
@@ -198,3 +204,4 @@ This project is licensed under the **MIT License** — feel free to use, modify,
 ```
 
 ---
+```
