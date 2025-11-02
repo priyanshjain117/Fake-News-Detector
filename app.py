@@ -181,6 +181,9 @@
 from flask import Flask, request, render_template, jsonify
 import pickle
 import re
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # -------------------------------------------------
 # 🔹 Load model and vectorizer
@@ -188,8 +191,8 @@ import re
 # Loading the model and vectorizer once when the application starts
 # This is crucial for Gunicorn, which loads the app once per worker.
 try:
-    model = pickle.load(open('model.pkl', 'rb'))
-    vectorizer = pickle.load(open('vectorizer_ver2.pkl', 'rb'))
+    model = pickle.load(open(os.path.join(BASE_DIR, "model.pkl"), 'rb'))
+    vectorizer = pickle.load(open(os.path.join(BASE_DIR, "vectorizer_ver2.pkl"), 'rb'))
 except Exception as e:
     print(f"Error loading model files: {e}")
     # In a production environment, failing to load the model is a critical error.
