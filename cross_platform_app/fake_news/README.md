@@ -1,72 +1,22 @@
-Here’s your **corrected and cleanly formatted README.md**, with fixed Markdown syntax, corrected code blocks, and an improved ASCII architecture diagram that displays properly on GitHub or VS Code preview.
-
----
-
-```markdown
-# 📰 Fake News Detector App
-
-An intelligent **Fake News Detection System** that uses **Machine Learning** (Logistic Regression + TF-IDF) to classify news headlines or articles as **Real**, **Fake**, or **Questionable**.  
-Built with **Flutter** for the front-end and **TensorFlow Lite (TFLite)** for on-device inference — ensuring privacy, speed, and offline capability.
-
----
-
-## 🚀 Features
-
-- 🔍 **Real-time Fake News Detection** — Enter a news headline or paragraph and get instant classification.  
-- 🤖 **On-device Machine Learning** — Uses a pre-trained Logistic Regression model converted to TFLite format.  
-- 🧠 **TF-IDF Vectorization** — Converts text input into numerical vectors for model prediction.  
-- 📱 **Flutter UI** — Clean, responsive, and mobile-friendly design.  
-- ⚡ **Offline Prediction** — No internet needed after model deployment.  
-- 🧾 **Three Output Categories:**
-  - ✅ Real  
-  - ❌ Fake  
-  - ❓ Questionable (Uncertain cases)
-
----
-
-## 🧩 Tech Stack
-
-| Layer | Technology Used | Description |
-|-------|------------------|-------------|
-| **ML Model** | Logistic Regression | Trained to classify fake vs real news |
-| **Text Processing** | TF-IDF Vectorizer | Converts text into feature vectors |
-| **Framework** | TensorFlow Lite | For running ML model on-device |
-| **Frontend** | Flutter | Cross-platform mobile UI |
-| **Language** | Dart, Python | Dart (App), Python (Model Training) |
-
----
-
-## ⚙️ Architecture
-
-```
-
-┌───────────────────────────────────────────┐
-│                 Flutter App               │
-│  ┌─────────────────────────────────────┐  │
-│  │           User enters text          │  │
-│  └─────────────────────────────────────┘  │
-│                     │                      │
-│                     ▼                      │
-│  ┌─────────────────────────────────────┐  │
-│  │      TF-IDF + TFLite Model          │  │
-│  │     (Logistic Regression Model)     │  │
-│  └─────────────────────────────────────┘  │
-│                     │                      │
-│                     ▼                      │
-│        Prediction Result Displayed         │
-│       (Real / Fake / Questionable)         │
-└───────────────────────────────────────────┘
-
-````
-
----
-
-## 🧠 Model Training (Python)
-
-1. **Dataset**: News dataset with labeled `real` and `fake` samples.  
-2. **Steps:**
-
-   ```python
+# 📰 Fake News Detector App An intelligent **Fake News Detection System** that uses **Machine Learning** (Logistic Regression + TF-IDF) to classify news headlines or articles as **Real**, **Fake**, or **Questionable**. Built with **Flutter** for the front-end and **TensorFlow Lite (TFLite)** for on-device inference — ensuring privacy, speed, and offline capability. --- ## 🚀 Features - 🔍 **Real-time Fake News Detection** — Enter a news headline or paragraph and get instant classification. - 🤖 **On-device Machine Learning** — Uses a pre-trained Logistic Regression model converted to TFLite format. - 🧠 **TF-IDF Vectorization** — Converts text input into numerical vectors for model prediction. - 📱 **Flutter UI** — Clean, responsive, and mobile-friendly design. - ⚡ **Offline Prediction** — No internet needed after model deployment. - 🧾 **Three Output Categories** - ✅ Real - ❌ Fake - ❓ Questionable (Uncertain cases) --- ## 🧩 Tech Stack | Layer | Technology Used | Description | |-------|------------------|-------------| | **ML Model** | Logistic Regression | Trained to classify fake vs real news | | **Text Processing** | TF-IDF Vectorizer | Converts text into feature vectors | | **Framework** | TensorFlow Lite | For running ML model on-device | | **Frontend** | Flutter | Cross-platform mobile UI | | **Language** | Dart, Python | Dart (App), Python (Model Training) | --- ## ⚙️ Architecture
+┌─────────────────────────────┐
+│         Flutter App         │
+│   ┌─────────────────────┐   │
+│   │ User enters text    │   │
+│   └─────────────────────┘   │
+│              │               │
+│              ▼               │
+│   ┌─────────────────────┐   │
+│   │ TF-IDF + TFLite     │ ← Pre-trained ML model
+│   │ Logistic Regression  │
+│   └─────────────────────┘   │
+│              │               │
+│              ▼               │
+│     Prediction Result        │
+│  (Real / Fake / Questionable)│
+└─────────────────────────────┘
+--- ## 🧠 Model Training (Python) 1. **Dataset**: News dataset with labeled real and fake samples. 2. **Steps**:
+python
    from sklearn.feature_extraction.text import TfidfVectorizer
    from sklearn.linear_model import LogisticRegression
    import joblib
@@ -80,7 +30,7 @@ Built with **Flutter** for the front-end and **TensorFlow Lite (TFLite)** for on
    model = LogisticRegression()
    model.fit(X, y)
 
-   # Save model and vocabulary
+   # Save model and vocab
    joblib.dump(model, 'model.pkl')
    joblib.dump(vectorizer.vocabulary_, 'vocab.pkl')
 ````
@@ -201,7 +151,3 @@ This project is licensed under the **MIT License** — feel free to use, modify,
 
 > ⚡ *"Fight misinformation with machine intelligence."*
 
-```
-
----
-```
