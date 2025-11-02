@@ -1,4 +1,4 @@
-```
+
 # 📰 Fake News Detector App
 
 An intelligent **Fake News Detection System** that leverages **Machine Learning** (Logistic Regression + TF-IDF) to classify news headlines or articles as **Real**, **Fake**, or **Questionable**. Built with **Flutter** for the frontend and **TensorFlow Lite** for secure, offline on-device inference.
@@ -96,22 +96,13 @@ An intelligent **Fake News Detection System** that leverages **Machine Learning*
 5. **Display results** in a color-coded, responsive UI.
 
 ---
-
 ## 🖼️ Screenshots
 
-| Home Screen                        | Result - Real                      | Result - Fake                      |
-| ----------------------------------  | ---------------------------------- | ---------------------------------- |
-| ![Home](assets/screenshots/home.png)| ![Real](assets/screenshots/real.png)| ![Fake](assets/screenshots/fake.png)|
 
----
 
-## 🧪 Example Input & Output
-
-| Input                                           | Predicted Label   |
-| ------------------------------------------------| ----------------- |
-| "NASA confirms water on the moon!"              | ✅ Real           |
-| "Celebrity endorses miracle cure for COVID-19"  | ❌ Fake           |
-| "Experts debate impact of new economic policy"  | ❓ Questionable   |
+| Home Screen                                | Result - Real                               | Result - Fake                               |
+|--------------------------------------------|---------------------------------------------|---------------------------------------------|
+| ![Home Screen](assets/screenshots/home.png) | ![Real Result](assets/screenshots/real.png) | ![Fake Result](assets/screenshots/fake.png) |
 
 ---
 
@@ -160,8 +151,8 @@ flutter run
 ## 👨‍💻 Author
 
 **Priyanshu** — Machine Learning & Flutter Developer  
-📧 [your.email@example.com](mailto:your.email@example.com)  
-💻 [github.com/yourusername](https://github.com/yourusername)  
+📧 [jainpriyanshu117@gmail.com](mailto:jainpriyanshu117@gmail.com)  
+💻 [github.com/priyanshjain117](https://github.com/priyanshjain117)  
 
 ---
 
