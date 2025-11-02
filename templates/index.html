@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fake News Detector</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -22,6 +23,11 @@
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <!-- Custom Error Message Box (Replaced alert()) -->
+    <div id="errorMessage" class="hidden fixed top-4 right-4 bg-red-600 text-white p-4 rounded-lg shadow-xl z-50 transition-opacity duration-300 font-medium" role="alert">
+        An error occurred.
+    </div>
+
     <div class="min-h-screen p-6">
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
@@ -71,7 +77,7 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Analysis Results</h2>
                 
                 <!-- Score Display -->
-                <div class="flex flex-col items-center mb-8">
+                <div class="flex flex-col items-center mb-4">
                     <div id="statusIcon"></div>
                     <h3 id="statusText" class="text-3xl font-bold mt-4 mb-2 capitalize"></h3>
                     <div class="w-full max-w-md">
@@ -89,8 +95,14 @@
                     </div>
                 </div>
 
+                <!-- TTS Button -->
+                <button id="speakButton" class="hidden mt-4 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition font-semibold text-sm mx-auto flex items-center gap-2" title="Read results aloud">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.121-7.072a8 8 0 010 11.314m-12.836-7.072A5 5 0 0110.464 12m0 0a5 5 0 01-7.072 0m7.072 0a5 5 0 000-7.072m0 7.072a5 5 0 010 7.072m0-7.072h-.01M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    Read Results Aloud
+                </button>
+                
                 <!-- Model Prediction Badge -->
-                <div class="text-center mb-6">
+                <div class="text-center mb-6 mt-6">
                     <div class="inline-block px-6 py-3 rounded-full text-white font-bold text-lg" id="modelPrediction">
                     </div>
                     <p class="text-sm text-gray-600 mt-2">
@@ -150,17 +162,168 @@
     </div>
 
     <script>
+        // ---------------------------------------------
+        // TTS and API Utility Functions
+        // ---------------------------------------------
+        function base64ToArrayBuffer(base64) {
+            const binary_string = window.atob(base64);
+            const len = binary_string.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binary_string.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcm16, sampleRate = 24000) {
+            const buffer = new ArrayBuffer(44 + pcm16.length * 2);
+            const view = new DataView(buffer);
+            let offset = 0;
+
+            function writeString(s) {
+                for (let i = 0; i < s.length; i++) {
+                    view.setUint8(offset + i, s.charCodeAt(i));
+                }
+                offset += s.length;
+            }
+
+            function writeUint16(i) {
+                view.setUint16(offset, i, true);
+                offset += 2;
+            }
+
+            function writeUint32(i) {
+                view.setUint32(offset, i, true);
+                offset += 4;
+            }
+
+            writeString('RIFF');
+            writeUint32(36 + pcm16.length * 2);
+            writeString('WAVE');
+            writeString('fmt ');
+            writeUint32(16);
+            writeUint16(1);
+            writeUint16(1);
+            writeUint32(sampleRate);
+            writeUint32(sampleRate * 2);
+            writeUint16(2);
+            writeUint16(16);
+            writeString('data');
+            writeUint32(pcm16.length * 2);
+
+            for (let i = 0; i < pcm16.length; i++) {
+                view.setInt16(offset, pcm16[i], true);
+                offset += 2;
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+        
+        async function fetchWithRetry(url, options, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status === 429 && i < retries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        console.log(`Rate limit exceeded. Retrying in ${delay / 1000}s...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                }
+            }
+        }
+
+        async function speakResults(textToSpeak) {
+            const apiKey = ""; 
+            // FIX: Using the base URL without appending '?key=${apiKey}' to avoid URL validation errors
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent`;
+
+            const payload = {
+                contents: [{
+                    parts: [{ text: `Say in a professional, clear voice: ${textToSpeak}` }]
+                }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: "Charon" }
+                        }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+
+            try {
+                const response = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const rateMatch = mimeType.match(/rate=(\d+)/);
+                    const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
+                    
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData.buffer);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    
+                    const audio = new Audio(audioUrl);
+                    audio.play();
+
+                    audio.onended = () => {
+                        URL.revokeObjectURL(audioUrl);
+                    };
+                } else {
+                    console.error("TTS generation failed or returned unexpected format.", result);
+                }
+            } catch (error) {
+                console.error("TTS API Error:", error);
+            }
+        }
+        
+        // Custom error display function
+        function showError(message) {
+            const errorBox = document.getElementById('errorMessage');
+            errorBox.textContent = message;
+            errorBox.classList.remove('hidden');
+            setTimeout(() => {
+                errorBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        // ---------------------------------------------
+        // Main Form Submission Logic
+        // ---------------------------------------------
         document.getElementById('newsForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const inputText = document.getElementById('inputText').value.trim();
             if (!inputText) {
-                alert('Please enter some text to analyze');
+                showError('Please enter some text to analyze.');
                 return;
             }
             
             const analyzeBtn = document.getElementById('analyzeBtn');
             const results = document.getElementById('results');
+            const speakButton = document.getElementById('speakButton');
+
+            // Reset TTS button state
+            speakButton.classList.add('hidden');
+            speakButton.onclick = null;
             
             // Show loading
             analyzeBtn.disabled = true;
@@ -180,7 +343,7 @@
                 console.log('Received data:', data);
                 
                 if (data.error) {
-                    alert('Error: ' + data.error);
+                    showError('Prediction Error: ' + data.error);
                     return;
                 }
                 
@@ -190,7 +353,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                showError('An API error occurred. Please check the console.');
             })
             .finally(() => {
                 // Reset button
@@ -200,42 +363,56 @@
         });
 
         function displayResults(data) {
+            const speakButton = document.getElementById('speakButton');
+            
+            // --- TTS Setup ---
+            const statusLabel = data.status === 'reliable' ? 'reliable' : data.status === 'questionable' ? 'questionable' : 'unreliable';
+            const speechText = `The credibility score is ${data.score} percent. The status is classified as ${statusLabel}. The model's prediction is ${data.model_prediction}. For verification, the model recommends: ${data.recommendations.join(', ')}.`;
+            
+            speakButton.classList.remove('hidden');
+            speakButton.onclick = () => speakResults(speechText);
+            
+            
             // Status icon
             const statusIcon = document.getElementById('statusIcon');
+            const statusTextElement = document.getElementById('statusText');
+            
             if (data.status === 'reliable') {
                 statusIcon.innerHTML = '<svg class="w-16 h-16 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                statusTextElement.className = 'text-3xl font-bold mt-4 mb-2 capitalize text-green-600';
             } else if (data.status === 'questionable') {
                 statusIcon.innerHTML = '<svg class="w-16 h-16 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+                statusTextElement.className = 'text-3xl font-bold mt-4 mb-2 capitalize text-yellow-600';
             } else {
                 statusIcon.innerHTML = '<svg class="w-16 h-16 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                statusTextElement.className = 'text-3xl font-bold mt-4 mb-2 capitalize text-red-600';
             }
             
             // Status text
-            document.getElementById('statusText').textContent = data.status;
-            document.getElementById('statusText').className = 'text-3xl font-bold mt-4 mb-2 capitalize ' + 
-                (data.status === 'reliable' ? 'text-green-600' : data.status === 'questionable' ? 'text-yellow-600' : 'text-red-600');
+            statusTextElement.textContent = data.status;
             
             // Model prediction
             const modelPrediction = document.getElementById('modelPrediction');
             if (data.model_prediction === 'REAL') {
-                modelPrediction.className = 'inline-block px-6 py-3 rounded-full bg-green-500 text-white font-bold text-lg';
+                modelPrediction.className = 'inline-block px-6 py-3 rounded-full bg-green-600 text-white font-bold text-lg';
                 modelPrediction.textContent = '✓ REAL NEWS';
+                document.getElementById('modelConfidence').textContent = data.confidence_real.toFixed(1) + '%';
             } else {
-                modelPrediction.className = 'inline-block px-6 py-3 rounded-full bg-red-500 text-white font-bold text-lg';
+                modelPrediction.className = 'inline-block px-6 py-3 rounded-full bg-red-600 text-white font-bold text-lg';
                 modelPrediction.textContent = '✗ FAKE NEWS';
+                document.getElementById('modelConfidence').textContent = data.confidence_fake.toFixed(1) + '%';
             }
-            
-            document.getElementById('modelConfidence').textContent = data.confidence_real.toFixed(1) + '%';
             
             // Score
             document.getElementById('scoreValue').textContent = data.score;
             const scoreBar = document.getElementById('scoreBar');
-            const scoreColor = data.score >= 70 ? 'bg-green-500' : data.score >= 40 ? 'bg-yellow-500' : 'bg-red-500';
+            const scoreColor = data.score >= 70 ? 'bg-green-600' : data.score >= 40 ? 'bg-yellow-500' : 'bg-red-600';
             scoreBar.className = 'h-full ' + scoreColor + ' transition-all duration-1000';
             setTimeout(() => { scoreBar.style.width = data.score + '%'; }, 100);
             
             // Indicators
             const indicators = data.indicators;
+            
             document.getElementById('emotional').textContent = indicators.emotional;
             document.getElementById('emotional').className = 'text-lg font-bold ' + (indicators.emotional === 'Low' ? 'text-green-600' : 'text-red-600');
             
