@@ -128,6 +128,10 @@ class _FakeNewsPageState extends State<FakeNewsPage>
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/newspaper_wallpaper.jpg"),
+            fit: BoxFit.cover, 
+          ),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -206,7 +210,7 @@ class _FakeNewsPageState extends State<FakeNewsPage>
             ),
             child: const Icon(
               Icons.newspaper_outlined,
-              color: Color(0xFF667EEA),
+              color: Color.fromARGB(255, 18, 20, 30),
               size: 25,
             ),
           ),
@@ -303,7 +307,7 @@ class _FakeNewsPageState extends State<FakeNewsPage>
                     ),
                     child: const Icon(
                       Icons.edit_note_rounded,
-                      color: Color(0xFF667EEA),
+                      color: Color.fromARGB(255, 18, 20, 30),
                       size: 24,
                     ),
                   ),
@@ -343,14 +347,14 @@ class _FakeNewsPageState extends State<FakeNewsPage>
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
-                          color: Colors.grey[200]!,
+                          color: const Color.fromARGB(255, 118, 112, 112),
                           width: 1,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: const BorderSide(
-                          color: Color(0xFF667EEA),
+                          color: Color.fromARGB(119, 26, 32, 59),
                           width: 2,
                         ),
                       ),
@@ -365,7 +369,7 @@ class _FakeNewsPageState extends State<FakeNewsPage>
                     child: ElevatedButton(
                       onPressed: _loading ? null : _predict,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF667EEA),
+                        backgroundColor:Color.fromARGB(214, 75, 99, 218),
                         foregroundColor: Colors.white,
                         elevation: 8,
                         shadowColor:
