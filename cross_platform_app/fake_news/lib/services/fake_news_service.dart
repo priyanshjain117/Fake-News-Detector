@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
-import 'analysis_result.dart'; 
+import '../models/analysis_result.dart'; 
 
 class FakeNewsService {
   late Interpreter _interpreter;

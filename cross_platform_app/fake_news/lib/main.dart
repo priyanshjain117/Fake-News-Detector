@@ -1,6 +1,6 @@
-import 'package:fake_news/fake_news_page.dart';
+import 'package:fake_news/screens/fake_news_page.dart';
 import 'package:flutter/material.dart';
-import 'fake_news_service.dart';
+import 'services/fake_news_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

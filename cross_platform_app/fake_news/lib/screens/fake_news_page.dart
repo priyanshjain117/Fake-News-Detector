@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fake_news/fake_news_service.dart';
+import 'package:fake_news/services/fake_news_service.dart';
 
 class FakeNewsPage extends StatefulWidget {
   final FakeNewsService service;
