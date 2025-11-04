@@ -1,6 +1,5 @@
-import 'dart:convert';
+import 'package:fake_news/widgets/url_input_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class FakeNewsInputCard extends StatelessWidget {
   final TextEditingController controller;
@@ -71,101 +70,21 @@ class FakeNewsInputCard extends StatelessWidget {
                   // 🌐 URL ICON BUTTON
                   IconButton(
                     tooltip: "Fetch from URL",
-                    icon: const Icon(Icons.link_rounded, color: Color(0xFF4B69D6)),
+                    icon: const Icon(Icons.link_rounded,
+                        color: Color(0xFF4B69D6)),
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
-
-                      final urlController = TextEditingController();
 
                       // Show URL input dialog
                       await showDialog(
                         context: context,
                         builder: (context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            title: const Text("Enter News URL"),
-                            content: TextField(
-                              controller: urlController,
-                              decoration: const InputDecoration(
-                                hintText: "https://example.com/news-article",
-                                prefixIcon: Icon(Icons.link),
-                                border: OutlineInputBorder(),
-                              ),
-                              keyboardType: TextInputType.url,
-                            ),
-                            actions: [
-                              TextButton(
-                                child: const Text("Cancel"),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4B69D6),
-                                ),
-                                onPressed: () async {
-                                  String url = urlController.text.trim();
-                                  if (Uri.tryParse(url)?.hasAbsolutePath != true) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Please enter a valid URL"),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  Navigator.pop(context); // Close dialog
-
-                                  // Show loading indicator
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      duration: Duration(seconds: 1),
-                                      content: Row(
-                                        children: [
-                                          CircularProgressIndicator(),
-                                          SizedBox(width: 10),
-                                          Text("Fetching article content..."),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-
-                                  try {
-                                    final response = await http.post(
-                                      Uri.parse(""), 
-                                      headers: {"Content-Type": "application/json"},
-                                      body: jsonEncode({"url": url}),
-                                    );
-
-                                    if (response.statusCode == 200) {
-                                      final data = jsonDecode(response.body);
-                                      if (data.containsKey("content")) {
-                                        controller.text = data["content"];
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("Content loaded successfully ✅"),
-                                          ),
-                                        );
-                                      } else {
-                                        throw Exception("No content found in response");
-                                      }
-                                    } else {
-                                      throw Exception("Failed to fetch article content");
-                                    }
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Error: $e")),
-                                    );
-                                  }
-                                },
-                                child: const Text("Fetch"),
-                              ),
-                            ],
+                          return UrlInputDialog(
+                            mainTextController:
+                                controller, // Pass the main controller here
                           );
                         },
                       );
-                  
                     },
                   ),
                 ],
