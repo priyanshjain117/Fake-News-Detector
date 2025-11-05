@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fake_news/services/fake_news_service.dart';
-
 import 'package:fake_news/widgets/app_bar.dart';
 import 'package:fake_news/widgets/header.dart';
 import 'package:fake_news/widgets/input_card.dart';
@@ -133,79 +133,106 @@ class _FakeNewsPageState extends State<FakeNewsPage>
     );
   }
 
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+
+    if (!mounted) return; 
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.check_circle_outline, color: Colors.white),
+            SizedBox(width: 12),
+            Text('You have been logged out.'),
+          ],
+        ),
+        backgroundColor: Colors.green.shade600, 
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isTablet = size.width > 600;
     final padding = isTablet ? 32.0 : 16.0;
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/newspaper_wallpaper.jpg"),
-            fit: BoxFit.cover,
-          ),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFF667EEA),
-              const Color(0xFF764BA2),
-              const Color(0xFFF093FB),
-            ],
-            stops: const [0.0, 0.5, 1.0],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Use the new AppBar widget
-              FakeNewsAppBar(onInfoPressed: _showInfoDialog),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.all(padding),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: isTablet ? 700 : double.infinity,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Use the new Header widget
-                          const FakeNewsHeader(),
-                          const SizedBox(height: 24),
-                          
-                          // Use the new Input Card widget
-                          FakeNewsInputCard(
-                            controller: _controller,
-                            loading: _loading,
-                            onAnalyze: _predict,
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        return Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              image: const DecorationImage(
+                image: AssetImage("assets/newspaper_wallpaper.jpg"),
+                fit: BoxFit.cover,
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF667EEA),
+                  const Color(0xFF764BA2),
+                  const Color(0xFFF093FB),
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  FakeNewsAppBar(
+                    onInfoPressed: _showInfoDialog,
+                    onLogoutPressed: _logout,
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.all(padding),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: isTablet ? 700 : double.infinity,
                           ),
-                          const SizedBox(height: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const FakeNewsHeader(),
+                              const SizedBox(height: 24),
 
-                          // Use the new Result Section widget
-                          ResultSection(
-                            loading: _loading,
-                            category: _category,
-                            confidence: _confidence,
-                            slideAnimation: _slideAnimation,
-                            pulseAnimation: _pulseAnimation,
-                            categoryColor: _getCategoryColor(),
-                            categoryIcon: _getCategoryIcon(),
+                              FakeNewsInputCard(
+                                controller: _controller,
+                                loading: _loading,
+                                onAnalyze: _predict,
+                              ),
+
+                              const SizedBox(height: 24),
+                              ResultSection(
+                                loading: _loading,
+                                category: _category,
+                                confidence: _confidence,
+                                slideAnimation: _slideAnimation,
+                                pulseAnimation: _pulseAnimation,
+                                categoryColor: _getCategoryColor(),
+                                categoryIcon: _getCategoryIcon(),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
+

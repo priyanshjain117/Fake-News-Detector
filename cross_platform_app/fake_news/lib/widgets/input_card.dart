@@ -1,4 +1,5 @@
 import 'package:fake_news/widgets/url_input_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class FakeNewsInputCard extends StatelessWidget {
@@ -6,7 +7,7 @@ class FakeNewsInputCard extends StatelessWidget {
   final bool loading;
   final VoidCallback onAnalyze;
 
-  const FakeNewsInputCard({
+  FakeNewsInputCard({
     super.key,
     required this.controller,
     required this.loading,
@@ -32,7 +33,6 @@ class FakeNewsInputCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -67,31 +67,31 @@ class FakeNewsInputCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  // 🌐 URL ICON BUTTON
                   IconButton(
                     tooltip: "Fetch from URL",
                     icon: const Icon(Icons.link_rounded,
                         color: Color(0xFF4B69D6)),
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
-
-                      // Show URL input dialog
-                      await showDialog(
-                        context: context,
-                        builder: (context) {
-                          return UrlInputDialog(
-                            mainTextController:
-                                controller, // Pass the main controller here
-                          );
-                        },
-                      );
+                      bool isLoggedIn=FirebaseAuth.instance.currentUser != null;
+                      if (isLoggedIn) {
+                        await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return UrlInputDialog(
+                              mainTextController: controller,
+                            );
+                          },
+                        );
+                      } else {
+                        Navigator.of(context).pushNamed('/login');
+                      }
                     },
                   ),
                 ],
               ),
             ),
 
-            // MAIN CONTENT
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -132,7 +132,6 @@ class FakeNewsInputCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  // Analyze Button
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     width: double.infinity,
